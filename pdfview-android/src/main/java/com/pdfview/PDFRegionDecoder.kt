@@ -11,18 +11,16 @@ import com.pdfview.subsamplincscaleimageview.decoder.ImageRegionDecoder
 import java.io.File
 
 internal class PDFRegionDecoder(private val view: PDFView,
-                                private val file: File,
                                 private val scale: Float,
                                 @param:ColorInt private val backgroundColorPdf: Int = Color.WHITE) : ImageRegionDecoder {
 
-    private lateinit var descriptor: ParcelFileDescriptor
     private lateinit var renderer: PdfRenderer
     private var pageWidth = 0
     private var pageHeight = 0
 
     @Throws(Exception::class)
     override fun init(context: Context, uri: Uri): Point {
-        descriptor = ParcelFileDescriptor.open(file, ParcelFileDescriptor.MODE_READ_ONLY)
+        val descriptor = context.contentResolver.openFileDescriptor(uri, "r")!!
         renderer = PdfRenderer(descriptor)
         val page = renderer.openPage(0)
         pageWidth = (page.width * scale).toInt()
@@ -63,7 +61,6 @@ internal class PDFRegionDecoder(private val view: PDFView,
 
     override fun recycle() {
         renderer.close()
-        descriptor.close()
         pageWidth = 0
         pageHeight = 0
     }

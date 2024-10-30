@@ -1,14 +1,17 @@
 package com.pdfview
 
+import android.content.ContentResolver.SCHEME_ANDROID_RESOURCE
 import android.content.Context
+import android.net.Uri
 import android.util.AttributeSet
+import androidx.annotation.RawRes
 import com.pdfview.subsamplincscaleimageview.ImageSource
 import com.pdfview.subsamplincscaleimageview.SubsamplingScaleImageView
 import java.io.File
 
 class PDFView @JvmOverloads constructor(context: Context, attrs: AttributeSet? = null) : SubsamplingScaleImageView(context, attrs) {
 
-    private var mfile: File? = null
+    private var mUri: Uri? = null
     private var mScale: Float = 8f
 
     init {
@@ -17,17 +20,27 @@ class PDFView @JvmOverloads constructor(context: Context, attrs: AttributeSet? =
     }
 
     fun fromAsset(assetFileName: String): PDFView {
-        mfile = FileUtils.fileFromAsset(context, assetFileName)
+        mUri = Uri.parse("file:///android_asset/$assetFileName")
         return this
     }
 
     fun fromFile(file: File): PDFView {
-        mfile = file
+        mUri = Uri.fromFile(file)
         return this
     }
 
     fun fromFile(filePath: String): PDFView {
-        mfile = File(filePath)
+        mUri = Uri.fromFile(File(filePath))
+        return this
+    }
+
+    fun fromResource(@RawRes resource: Int): PDFView {
+        mUri = Uri.parse(SCHEME_ANDROID_RESOURCE + "://" + context.packageName + "/" + resource)
+        return this
+    }
+
+    fun fromUri(uri: Uri): PDFView {
+        mUri = uri
         return this
     }
 
@@ -37,8 +50,8 @@ class PDFView @JvmOverloads constructor(context: Context, attrs: AttributeSet? =
     }
 
     fun show() {
-        val source = ImageSource.uri(mfile!!.path)
-        setRegionDecoderFactory { PDFRegionDecoder(view = this, file = mfile!!, scale = mScale) }
+        val source = ImageSource.uri(mUri!!)
+        setRegionDecoderFactory { PDFRegionDecoder(view = this, scale = mScale) }
         setImage(source)
     }
 

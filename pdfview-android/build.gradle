@@ -4,6 +4,8 @@ apply from: "$rootDir/maven-scripts/info.gradle"
 
 //  to upload to bintray use ./gradlew build bintrayUpload
 android {
+    namespace "com.pdfview.pdf"
+
     compileSdkVersion versions.compileSdk
 
     defaultConfig {
